@@ -1,0 +1,36 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# Spring Boot
+HELP.md
+.mvn/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Qodana
+.qodana/
+
+# Env files
+.env
+*.env.local

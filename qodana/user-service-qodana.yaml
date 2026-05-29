@@ -1,0 +1,37 @@
+# qodana.yaml — JetBrains Qodana config for user-service
+# Docs: https://www.jetbrains.com/help/qodana/qodana-yaml.html
+
+version: "1.0"
+
+linter: jetbrains/qodana-jvm:latest
+
+# Fail the pipeline if the number of new problems exceeds this threshold
+failThreshold: 0
+
+# Code coverage threshold (JaCoCo report must exist at target/site/jacoco/)
+coverage:
+  freshThreshold: 60    # new code must have ≥60% coverage
+  totalThreshold: 50    # overall project must have ≥50% coverage
+
+# Inspections to enable beyond defaults
+include:
+  - name: JavaDoc          # enforce Javadoc on public API
+  - name: UnusedDeclaration
+  - name: ConstantConditions
+  - name: NullableProblems
+
+# Inspections to suppress (noisy without value in this demo)
+exclude:
+  - name: SpellCheckingInspection
+
+# Directories to ignore
+excludes:
+  - name: ".*"            # ignore all hidden dirs
+    paths:
+      - ".git"
+      - "target"
+
+# Report uploaded to Qodana Cloud (set QODANA_TOKEN secret in GitHub)
+# Remove this section if not using Qodana Cloud
+# cloud:
+#   url: https://qodana.cloud

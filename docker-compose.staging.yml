@@ -1,0 +1,21 @@
+version: '3.9'
+
+# Staging overrides — used in CI/CD deploy-staging job
+# Run with: docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+
+services:
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:${IMAGE_TAG}
+    build: !reset null
+
+  api-gateway:
+    image: ghcr.io/${GITHUB_REPOSITORY}/api-gateway:${IMAGE_TAG}
+    build: !reset null
+
+  user-service:
+    image: ghcr.io/${GITHUB_REPOSITORY}/user-service:${IMAGE_TAG}
+    build: !reset null
+
+  product-service:
+    image: ghcr.io/${GITHUB_REPOSITORY}/product-service:${IMAGE_TAG}
+    build: !reset null
