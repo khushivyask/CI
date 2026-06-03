@@ -10,7 +10,9 @@ module.exports = function (config) {
       require('@angular-devkit/build-angular/plugins/karma')
     ],
     client: {
-      jasmine: { random: true },
+      jasmine: {
+        random: true
+      },
       clearContext: false
     },
     coverageReporter: {
@@ -26,19 +28,15 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: false,          // ← false for CI
-    browsers: ['ChromeHeadlessCI'],
-    customLaunchers: {
-      ChromeHeadlessCI: {
-        base: 'ChromeHeadless',
-        flags: [
-          '--no-sandbox',
-          '--disable-gpu',
-          '--disable-web-security'
-        ]
-      }
-    },
-    singleRun: true,           // ← true for CI
+    autoWatch: false,
+    browsers: ['ChromeHeadless'],       // ← use ChromeHeadless directly
+    flags: [
+      '--no-sandbox',
+      '--disable-gpu',
+      '--disable-web-security',
+      '--disable-dev-shm-usage'         // ← important for CI environments
+    ],
+    singleRun: true,
     restartOnFileChange: false
   });
 };

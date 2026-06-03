@@ -77,33 +77,36 @@ jobs:
   # JOB 3 — Lint & Test: Angular frontend
   # ══════════════════════════════════════════════════════════════════════════════
   test-frontend:
-    name: Test — Angular frontend
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+  name: Test — Angular frontend
+  runs-on: ubuntu-latest
+  defaults:
+    run:
+      working-directory: frontend
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Install dependencies
+      run: npm ci
 
+    - name: Install Chrome
+      uses: browser-actions/setup-chrome@v1    # ← ensures Chrome is available
 
-      - name: Run unit tests
-        run: npm test
+    - name: Run unit tests
+      run: npm test
+      env:
+        CHROME_BIN: /usr/bin/google-chrome     # ← tell Karma where Chrome is
 
-      - name: Build production bundle
-        run: npm run build
-
+    - name: Build production bundle
+      run: npm run build
   # ══════════════════════════════════════════════════════════════════════════════
   # JOB 4 — Qodana: user-service
   # ══════════════════════════════════════════════════════════════════════════════
