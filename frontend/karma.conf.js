@@ -13,9 +13,6 @@ module.exports = function (config) {
       jasmine: { random: true },
       clearContext: false
     },
-    jasmineHtmlReporter: {
-      suppressAll: true
-    },
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/ecommerce-frontend'),
       subdir: '.',
@@ -29,15 +26,19 @@ module.exports = function (config) {
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: true,
-    browsers: ['Chrome'],
+    autoWatch: false,          // ← false for CI
+    browsers: ['ChromeHeadlessCI'],
     customLaunchers: {
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-gpu']
+        flags: [
+          '--no-sandbox',
+          '--disable-gpu',
+          '--disable-web-security'
+        ]
       }
     },
-    singleRun: false,
-    restartOnFileChange: true
+    singleRun: true,           // ← true for CI
+    restartOnFileChange: false
   });
 };
