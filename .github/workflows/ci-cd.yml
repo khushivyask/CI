@@ -2,21 +2,20 @@ name: CI/CD Pipeline — Angular + Spring Boot + Qodana
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ${{ github.repository }}
-  JAVA_VERSION: '21'
-  NODE_VERSION: '20'
+  JAVA_VERSION: "21"
+  NODE_VERSION: "20"
 
 jobs:
-
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 1 — Build & Test: user-service
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 1 — Build & Test: user-service
+  # ══════════════════════════════════════════════════════════════════════════════
   test-user-service:
     name: Test — user-service
     runs-on: ubuntu-latest
@@ -44,9 +43,9 @@ jobs:
           name: user-service-coverage
           path: services/user-service/target/site/jacoco/
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 2 — Build & Test: product-service
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 2 — Build & Test: product-service
+  # ══════════════════════════════════════════════════════════════════════════════
   test-product-service:
     name: Test — product-service
     runs-on: ubuntu-latest
@@ -74,9 +73,9 @@ jobs:
           name: product-service-coverage
           path: services/product-service/target/site/jacoco/
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 3 — Lint & Test: Angular frontend
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 3 — Lint & Test: Angular frontend
+  # ══════════════════════════════════════════════════════════════════════════════
   test-frontend:
     name: Test — Angular frontend
     runs-on: ubuntu-latest
@@ -107,19 +106,19 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 4 — Qodana: user-service
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 4 — Qodana: user-service
+  # ══════════════════════════════════════════════════════════════════════════════
   qodana-user-service:
     name: Qodana — user-service
     runs-on: ubuntu-latest
-    needs: [ test-user-service ]
+    needs: [test-user-service]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history for accurate diff analysis
+          fetch-depth: 0 # full history for accurate diff analysis
 
       - name: Set up Java (needed so Maven can build before Qodana)
         uses: actions/setup-java@v4
@@ -156,13 +155,13 @@ jobs:
           name: qodana-user-service-report
           path: ${{ runner.temp }}/qodana-user/
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 5 — Qodana: product-service
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 5 — Qodana: product-service
+  # ══════════════════════════════════════════════════════════════════════════════
   qodana-product-service:
     name: Qodana — product-service
     runs-on: ubuntu-latest
-    needs: [ test-product-service ]
+    needs: [test-product-service]
 
     steps:
       - name: Checkout code
@@ -203,9 +202,9 @@ jobs:
           name: qodana-product-service-report
           path: ${{ runner.temp }}/qodana-product/
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 6 — Docker Build & Push (only on push to main)
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 6 — Docker Build & Push (only on push to main)
+  # ══════════════════════════════════════════════════════════════════════════════
   docker-build-push:
     name: Docker build & push
     runs-on: ubuntu-latest
@@ -265,18 +264,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 7 — Trivy Security Scan on built images
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 7 — Trivy Security Scan on built images
+  # ══════════════════════════════════════════════════════════════════════════════
   trivy-scan:
     name: Trivy CVE scan
     runs-on: ubuntu-latest
-    needs: [ docker-build-push ]
+    needs: [docker-build-push]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     strategy:
       matrix:
-        service: [ user-service, product-service, api-gateway, frontend ]
+        service: [user-service, product-service, api-gateway, frontend]
 
     steps:
       - name: Run Trivy vulnerability scanner
@@ -289,13 +288,13 @@ jobs:
           vuln-type: os,library
           severity: CRITICAL,HIGH
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 8 — Deploy to Staging
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 8 — Deploy to Staging
+  # ══════════════════════════════════════════════════════════════════════════════
   deploy-staging:
     name: Deploy — staging
     runs-on: ubuntu-latest
-    needs: [ trivy-scan ]
+    needs: [trivy-scan]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
       name: staging
@@ -311,9 +310,9 @@ jobs:
       - name: Deploy to staging server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host:     ${{ secrets.STAGING_HOST }}
+          host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
-          key:      ${{ secrets.STAGING_SSH_KEY }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             cd /opt/ecommerce-staging
             export IMAGE_TAG=${{ env.IMAGE_TAG }}
@@ -332,16 +331,16 @@ jobs:
           curl --fail http://staging.example.com/
           echo "All health checks passed!"
 
-# ══════════════════════════════════════════════════════════════════════════════
-# JOB 9 — Deploy to Production (requires manual approval via environment rule)
-# ══════════════════════════════════════════════════════════════════════════════
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JOB 9 — Deploy to Production (requires manual approval via environment rule)
+  # ══════════════════════════════════════════════════════════════════════════════
   deploy-production:
     name: Deploy — production
     runs-on: ubuntu-latest
-    needs: [ deploy-staging ]
+    needs: [deploy-staging]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment:
-      name: production          # <-- set "Required reviewers" on this env in GitHub settings
+      name: production # <-- set "Required reviewers" on this env in GitHub settings
       url: http://production.example.com
 
     steps:
@@ -354,9 +353,9 @@ jobs:
       - name: Rolling deploy to production server
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host:     ${{ secrets.PROD_HOST }}
+          host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USER }}
-          key:      ${{ secrets.PROD_SSH_KEY }}
+          key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd /opt/ecommerce-production
             export IMAGE_TAG=${{ env.IMAGE_TAG }}
