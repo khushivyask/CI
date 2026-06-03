@@ -17,7 +17,7 @@ jobs:
   # JOB 1 — Build & Test: user-service
   # ══════════════════════════════════════════════════════════════════════════════
   test-user-service:
-    name: Test — user-service
+    name: Test - user-service
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -44,10 +44,10 @@ jobs:
           path: services/user-service/target/site/jacoco/
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 2 — Build & Test: product-service
+  # JOB 2 - Build & Test: product-service
   # ══════════════════════════════════════════════════════════════════════════════
   test-product-service:
-    name: Test — product-service
+    name: Test - product-service
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -74,44 +74,43 @@ jobs:
           path: services/product-service/target/site/jacoco/
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 3 — Lint & Test: Angular frontend
+  # JOB 3 - Lint & Test: Angular frontend
   # ══════════════════════════════════════════════════════════════════════════════
   test-frontend:
-  name: Test — Angular frontend
-  runs-on: ubuntu-latest
-  defaults:
-    run:
-      working-directory: frontend
+    name: Test - Angular frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: npm
-        cache-dependency-path: frontend/package-lock.json
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Install Chrome
-      uses: browser-actions/setup-chrome@v1    # ← ensures Chrome is available
+      - name: Lint
+        run: npm run lint
 
-    - name: Run unit tests
-      run: npm test
-      env:
-        CHROME_BIN: /usr/bin/google-chrome     # ← tell Karma where Chrome is
+      - name: Run unit tests
+        run: npm test
 
-    - name: Build production bundle
-      run: npm run build
+      - name: Build production bundle
+        run: npm run build
+
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 4 — Qodana: user-service
+  # JOB 4 - Qodana: user-service
   # ══════════════════════════════════════════════════════════════════════════════
   qodana-user-service:
-    name: Qodana — user-service
+    name: Qodana - user-service
     runs-on: ubuntu-latest
     needs: [test-user-service]
 
@@ -157,10 +156,10 @@ jobs:
           path: ${{ runner.temp }}/qodana-user/
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 5 — Qodana: product-service
+  # JOB 5 - Qodana: product-service
   # ══════════════════════════════════════════════════════════════════════════════
   qodana-product-service:
-    name: Qodana — product-service
+    name: Qodana - product-service
     runs-on: ubuntu-latest
     needs: [test-product-service]
 
@@ -204,7 +203,7 @@ jobs:
           path: ${{ runner.temp }}/qodana-product/
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 6 — Docker Build & Push (only on push to main)
+  # JOB 6 - Docker Build & Push (only on push to main)
   # ══════════════════════════════════════════════════════════════════════════════
   docker-build-push:
     name: Docker build & push
@@ -266,7 +265,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 7 — Trivy Security Scan on built images
+  # JOB 7 - Trivy Security Scan on built images
   # ══════════════════════════════════════════════════════════════════════════════
   trivy-scan:
     name: Trivy CVE scan
@@ -290,10 +289,10 @@ jobs:
           severity: CRITICAL,HIGH
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 8 — Deploy to Staging
+  # JOB 8 - Deploy to Staging
   # ══════════════════════════════════════════════════════════════════════════════
   deploy-staging:
-    name: Deploy — staging
+    name: Deploy - staging
     runs-on: ubuntu-latest
     needs: [trivy-scan]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -333,7 +332,7 @@ jobs:
           echo "All health checks passed!"
 
   # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 9 — Deploy to Production (requires manual approval via environment rule)
+  # JOB 9 - Deploy to Production (requires manual approval via environment rule)
   # ══════════════════════════════════════════════════════════════════════════════
   deploy-production:
     name: Deploy — production
