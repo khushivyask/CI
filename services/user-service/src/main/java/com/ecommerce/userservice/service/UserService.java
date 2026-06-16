@@ -24,6 +24,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public List<User> searchByName(String name) {
+    return userRepository.findByNameContainingIgnoreCase(name);
+}
+
     public User createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email already in use: " + user.getEmail());

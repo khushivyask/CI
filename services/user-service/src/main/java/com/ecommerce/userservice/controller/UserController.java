@@ -55,4 +55,10 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> searchUsers(
+        @RequestParam String name) {
+    return ResponseEntity.ok(userService.searchByName(name));
+}
 }

@@ -1,7 +1,7 @@
 // src/app/components/users/users.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators,FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 
@@ -72,4 +72,17 @@ export class UsersComponent implements OnInit {
     this.error     = '';
     this.initForm();
   }
+
+  searchTerm = '';
+
+onSearch(): void {
+  if (!this.searchTerm.trim()) {
+    this.loadUsers();
+    return;
+  }
+  this.userService.search(this.searchTerm).subscribe({
+    next: (data) => { this.users = data; },
+    error: (err)  => { this.error = err.message; }
+  });
+}
 }

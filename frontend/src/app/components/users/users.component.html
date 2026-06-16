@@ -1,26 +1,39 @@
-<!-- src/app/components/users/users.component.html -->
 <div class="container">
   <h2>User Management</h2>
 
-  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
 
   <!-- Form -->
   <div class="card mb-4">
     <div class="card-body">
       <h5>{{ editingId ? 'Edit User' : 'Add New User' }}</h5>
+
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="mb-3">
           <label class="form-label">Name</label>
-          <input formControlName="name" class="form-control"
-                 [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched">
-          <div class="invalid-feedback">Name must be at least 2 characters.</div>
+          <input
+            formControlName="name"
+            class="form-control"
+            [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          <div class="invalid-feedback">
+            Name must be at least 2 characters.
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Email</label>
-          <input formControlName="email" type="email" class="form-control"
-                 [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched">
-          <div class="invalid-feedback">Enter a valid email address.</div>
+          <input
+            formControlName="email"
+            type="email"
+            class="form-control"
+            [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+          />
+          <div class="invalid-feedback">
+            Enter a valid email address.
+          </div>
         </div>
 
         <div class="mb-3">
@@ -31,39 +44,103 @@
           </select>
         </div>
 
-        <button type="submit" class="btn btn-primary me-2" [disabled]="form.invalid">
+        <button
+          type="submit"
+          class="btn btn-primary me-2"
+          [disabled]="form.invalid"
+        >
           {{ editingId ? 'Update' : 'Create' }}
         </button>
-        <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="editingId">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="resetForm()"
+          *ngIf="editingId"
+        >
           Cancel
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Table -->
-  <div *ngIf="loading" class="text-center py-4">Loading...</div>
+  <!-- Search Bar -->
+  <div class="input-group mb-3">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search users by name..."
+      [(ngModel)]="searchTerm"
+      (input)="onSearch()"
+    />
 
-  <table class="table table-striped" *ngIf="!loading && users.length > 0">
+    <button
+      class="btn btn-outline-secondary"
+      type="button"
+      (click)="clearSearch()"
+    >
+      Clear
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-4">
+    Loading...
+  </div>
+
+  <!-- Users Table -->
+  <table
+    class="table table-striped"
+    *ngIf="!loading && users.length > 0"
+  >
     <thead>
       <tr>
-        <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Actions</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
       </tr>
     </thead>
+
     <tbody>
       <tr *ngFor="let user of users">
         <td>{{ user.id }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
-        <td><span class="badge" [class.bg-danger]="user.role==='ADMIN'"
-                  [class.bg-secondary]="user.role==='USER'">{{ user.role }}</span></td>
         <td>
-          <button class="btn btn-sm btn-outline-primary me-1" (click)="edit(user)">Edit</button>
-          <button class="btn btn-sm btn-outline-danger" (click)="delete(user.id!)">Delete</button>
+          <span
+            class="badge"
+            [class.bg-danger]="user.role === 'ADMIN'"
+            [class.bg-secondary]="user.role === 'USER'"
+          >
+            {{ user.role }}
+          </span>
+        </td>
+
+        <td>
+          <button
+            class="btn btn-sm btn-outline-primary me-1"
+            (click)="edit(user)"
+          >
+            Edit
+          </button>
+
+          <button
+            class="btn btn-sm btn-outline-danger"
+            (click)="delete(user.id!)"
+          >
+            Delete
+          </button>
         </td>
       </tr>
     </tbody>
   </table>
 
-  <p *ngIf="!loading && users.length === 0" class="text-muted">No users found.</p>
+  <p
+    *ngIf="!loading && users.length === 0"
+    class="text-muted"
+  >
+    No users found.
+  </p>
 </div>

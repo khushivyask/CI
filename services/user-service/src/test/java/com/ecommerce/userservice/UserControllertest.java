@@ -77,4 +77,23 @@ class UserControllerTest {
         mockMvc.perform(delete("/api/users/" + saved.getId()))
                .andExpect(status().isNoContent());
     }
+    @Test
+void searchUsers_byName_returnsMatchingUsers() throws Exception {
+    userRepository.save(new User("Alice Smith", "alice@example.com", "USER"));
+    userRepository.save(new User("Bob Jones",   "bob@example.com",   "USER"));
+
+    mockMvc.perform(get("/api/users/search?name=alice"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.length()").value(1))
+           .andExpect(jsonPath("$[0].name").value("Alice Smith"));
+}
+
+@Test
+void searchUsers_noMatch_returnsEmptyList() throws Exception {
+    userRepository.save(new User("Alice", "alice@example.com", "USER"));
+
+    mockMvc.perform(get("/api/users/search?name=xyz"))
+           .andExpect(status().isOk())
+           .andExpect(jsonPath("$.length()").value(0));
+}
 }
