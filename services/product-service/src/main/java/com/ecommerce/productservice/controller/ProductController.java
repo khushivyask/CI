@@ -59,4 +59,16 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Called by user-service to create a product on behalf of a user
+@PostMapping("/create-for-user/{userId}")
+public ResponseEntity<Product> createProductForUser(
+        @PathVariable Long userId,
+        @Valid @RequestBody Product product) {
+    product.setDescription("Added by user " + userId
+                           + (product.getDescription() != null
+                              ? " — " + product.getDescription() : ""));
+    return ResponseEntity.status(HttpStatus.CREATED)
+            .body(productService.createProduct(product));
+}
 }

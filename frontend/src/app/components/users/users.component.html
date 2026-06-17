@@ -1,23 +1,81 @@
 <div class="container">
   <h2>User Management</h2>
 
-  <div *ngIf="error" class="alert alert-danger">
-    {{ error }}
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Stats cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h2 class="card-title text-primary">{{ stats.total }}</h2>
+          <p class="card-text text-muted">Total users</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h2 class="card-title text-danger">{{ stats.admins }}</h2>
+          <p class="card-text text-muted">Admins</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h2 class="card-title text-success">{{ stats.users }}</h2>
+          <p class="card-text text-muted">Regular users</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Form -->
+  <!-- Search bar -->
+  <div class="input-group mb-3">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search users by name..."
+      [(ngModel)]="searchTerm"
+      (input)="onSearch()">
+
+    <button class="btn btn-outline-secondary" (click)="clearSearch()">
+      Clear
+    </button>
+  </div>
+
+  <!-- Role filter buttons -->
+  <div class="mb-3">
+    <button class="btn btn-outline-primary me-2" (click)="loadUsers()">
+      All users
+    </button>
+
+    <button class="btn btn-outline-danger me-2" (click)="filterByRole('ADMIN')">
+      Admins only
+    </button>
+
+    <button class="btn btn-outline-success" (click)="filterByRole('USER')">
+      Regular users only
+    </button>
+  </div>
+
+  <!-- Add / Edit User Form -->
   <div class="card mb-4">
     <div class="card-body">
       <h5>{{ editingId ? 'Edit User' : 'Add New User' }}</h5>
 
       <form [formGroup]="form" (ngSubmit)="submit()">
+
         <div class="mb-3">
           <label class="form-label">Name</label>
           <input
             formControlName="name"
             class="form-control"
-            [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
-          />
+            [class.is-invalid]="form.get('name')?.invalid && form.get('name')?.touched">
+
           <div class="invalid-feedback">
             Name must be at least 2 characters.
           </div>
@@ -29,8 +87,8 @@
             formControlName="email"
             type="email"
             class="form-control"
-            [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
-          />
+            [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+
           <div class="invalid-feedback">
             Enter a valid email address.
           </div>
@@ -38,6 +96,7 @@
 
         <div class="mb-3">
           <label class="form-label">Role</label>
+
           <select formControlName="role" class="form-select">
             <option value="USER">User</option>
             <option value="ADMIN">Admin</option>
@@ -47,8 +106,8 @@
         <button
           type="submit"
           class="btn btn-primary me-2"
-          [disabled]="form.invalid"
-        >
+          [disabled]="form.invalid">
+
           {{ editingId ? 'Update' : 'Create' }}
         </button>
 
@@ -56,50 +115,28 @@
           type="button"
           class="btn btn-secondary"
           (click)="resetForm()"
-          *ngIf="editingId"
-        >
+          *ngIf="editingId">
+
           Cancel
         </button>
+
       </form>
     </div>
   </div>
 
-  <!-- Search Bar -->
-  <div class="input-group mb-3">
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Search users by name..."
-      [(ngModel)]="searchTerm"
-      (input)="onSearch()"
-    />
-
-    <button
-      class="btn btn-outline-secondary"
-      type="button"
-      (click)="clearSearch()"
-    >
-      Clear
-    </button>
-  </div>
-
-  <!-- Loading -->
+  <!-- Users table -->
   <div *ngIf="loading" class="text-center py-4">
     Loading...
   </div>
 
-  <!-- Users Table -->
-  <table
-    class="table table-striped"
-    *ngIf="!loading && users.length > 0"
-  >
+  <table class="table table-striped" *ngIf="!loading && users.length > 0">
     <thead>
       <tr>
         <th>ID</th>
         <th>Name</th>
         <th>Email</th>
         <th>Role</th>
-        <th>Actions</th>
+        <th width="250">Actions</th>
       </tr>
     </thead>
 
@@ -108,12 +145,13 @@
         <td>{{ user.id }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
+
         <td>
           <span
             class="badge"
             [class.bg-danger]="user.role === 'ADMIN'"
-            [class.bg-secondary]="user.role === 'USER'"
-          >
+            [class.bg-secondary]="user.role === 'USER'">
+
             {{ user.role }}
           </span>
         </td>
@@ -121,15 +159,19 @@
         <td>
           <button
             class="btn btn-sm btn-outline-primary me-1"
-            (click)="edit(user)"
-          >
+            (click)="edit(user)">
             Edit
           </button>
 
           <button
+            class="btn btn-sm btn-outline-success me-1"
+            (click)="openProductForm(user)">
+            Add Product
+          </button>
+
+          <button
             class="btn btn-sm btn-outline-danger"
-            (click)="delete(user.id!)"
-          >
+            (click)="delete(user.id!)">
             Delete
           </button>
         </td>
@@ -137,10 +179,118 @@
     </tbody>
   </table>
 
-  <p
-    *ngIf="!loading && users.length === 0"
-    class="text-muted"
-  >
+  <p *ngIf="!loading && users.length === 0" class="text-muted">
     No users found.
   </p>
+
+  <!-- Product Success Message -->
+  <div *ngIf="productSuccess" class="alert alert-success mt-3">
+    {{ productSuccess }}
+  </div>
+
+  <!-- Add Product Form -->
+  <div class="card mt-3" *ngIf="showProductForm">
+    <div class="card-body">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+          Add product for — {{ selectedUserName }}
+        </h5>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          (click)="showProductForm = false">
+          Cancel
+        </button>
+      </div>
+
+      <div class="alert alert-info py-2 mb-3">
+        This calls user-service → product-service (microservice communication)
+      </div>
+
+      <form [formGroup]="productForm" (ngSubmit)="submitProduct()">
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label">Product Name</label>
+
+            <input
+              formControlName="name"
+              class="form-control"
+              placeholder="e.g. Laptop"
+              [class.is-invalid]="productForm.get('name')?.invalid &&
+                                  productForm.get('name')?.touched">
+
+            <div class="invalid-feedback">
+              Name is required.
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Price (₹)</label>
+
+            <input
+              formControlName="price"
+              type="number"
+              step="0.01"
+              class="form-control"
+              [class.is-invalid]="productForm.get('price')?.invalid &&
+                                  productForm.get('price')?.touched">
+
+            <div class="invalid-feedback">
+              Price must be ≥ 0.
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Stock</label>
+
+            <input
+              formControlName="stock"
+              type="number"
+              class="form-control"
+              [class.is-invalid]="productForm.get('stock')?.invalid &&
+                                  productForm.get('stock')?.touched">
+
+            <div class="invalid-feedback">
+              Stock must be ≥ 0.
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label">Description</label>
+
+            <input
+              formControlName="description"
+              class="form-control"
+              placeholder="Optional description">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Category</label>
+
+            <select formControlName="category" class="form-select">
+              <option value="GENERAL">General</option>
+              <option value="ELECTRONICS">Electronics</option>
+              <option value="CLOTHING">Clothing</option>
+              <option value="FOOD">Food</option>
+              <option value="BOOKS">Books</option>
+            </select>
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-success mt-3"
+          [disabled]="productForm.invalid">
+
+          Save product via user-service
+        </button>
+
+      </form>
+    </div>
+  </div>
+
 </div>
